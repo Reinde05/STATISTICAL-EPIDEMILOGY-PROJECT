@@ -1,0 +1,563 @@
+---
+title: "Analisis GWAS Kanker Payudara pada Region BRCA (17q21)"
+author: "Muhammad Fabian Reinhard Delano"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    theme: cosmo
+    df_print: paged
+---
+
+# BAGIAN PENDAHULUAN
+
+## Latar Belakang
+
+Kanker payudara merupakan penyakit yang ditandai oleh pertumbuhan sel-sel pada jaringan payudara secara tidak terkendali sehingga membentuk massa atau benjolan yang dikenal sebagai tumor. Penyakit ini menjadi salah satu masalah kesehatan utama di dunia karena angka kejadiannya terus meningkat setiap tahun, baik di negara maju maupun negara berkembang (Aplikasi Penyakit Kanker Payudara Menggunakan Perbandingan Algoritma Machine Learning).
+
+Menurut World Health Organization (WHO), kanker payudara merupakan jenis kanker yang paling banyak menyerang perempuan dan menjadi salah satu penyebab utama kematian akibat kanker. Selain itu, International Agency for Research on Cancer (IARC) melaporkan bahwa kanker payudara termasuk salah satu kanker dengan jumlah kasus tertinggi secara global. Setiap tahunnya jutaan kasus baru kanker payudara terdiagnosis dan memberikan kontribusi yang besar terhadap angka kematian akibat kanker. Di Indonesia sendiri, angka kejadian kanker payudara menunjukkan kecenderungan meningkat dari tahun ke tahun. Beberapa penelitian juga melaporkan bahwa penggunaan kontrasepsi hormonal dapat menjadi salah satu faktor yang berpotensi meningkatkan risiko terjadinya kanker payudara (Penggunaan Kontrasepsi Hormonal Berisiko Kanker Payudara: A Literature Review).
+
+Data epidemiologi menunjukkan bahwa di Indonesia terdapat sekitar 100 kasus baru kanker payudara per 100.000 penduduk setiap tahunnya dengan prevalensi tumor atau kanker mencapai sekitar 1,4 per 1.000 penduduk. Risiko terjadinya kanker payudara cenderung meningkat seiring bertambahnya usia individu. Tingginya angka kejadian tersebut dipengaruhi oleh berbagai faktor, baik yang berasal dari kondisi internal tubuh maupun faktor eksternal dari lingkungan sekitar. Oleh karena itu, peningkatan pengetahuan dan kesadaran masyarakat mengenai kesehatan payudara menjadi aspek penting dalam upaya pencegahan serta deteksi dini kanker payudara (Peningkatan Pemahaman Bahaya Kanker Payudara dengan Edukasi Perawatan Payudara Sendiri (SADARI) kepada Siswi SMK Swasta Maris).
+
+Selain faktor usia, berbagai faktor risiko lain juga diketahui berkontribusi terhadap meningkatnya kejadian kanker payudara, antara lain pola makan yang kurang sehat, rendahnya aktivitas fisik, paparan zat tertentu, serta kondisi lingkungan yang kurang mendukung kesehatan. Keterlambatan dalam mengenali gejala dan melakukan deteksi dini juga dapat menyebabkan penyakit berkembang ke stadium yang lebih lanjut sehingga menurunkan peluang keberhasilan pengobatan. Oleh karena itu, berbagai program edukasi dan deteksi dini terus dikembangkan sebagai upaya untuk menekan angka kejadian dan meningkatkan kualitas hidup penderita kanker payudara (Penyuluhan Deteksi Dini Kanker Payudara Menggunakan SADARI dan Mammografi).
+
+Di samping faktor lingkungan dan gaya hidup, faktor genetik juga memiliki peran yang penting dalam menentukan kerentanan seseorang terhadap kanker payudara. Perkembangan penelitian berbasis *Genome-Wide Association Study* (GWAS) telah berhasil mengidentifikasi berbagai variasi genetik yang berhubungan dengan peningkatan risiko kanker payudara. Beberapa *single nucleotide polymorphisms* (SNP) yang banyak dilaporkan berasosiasi dengan penyakit ini adalah rs2981582 pada gen **FGFR2**, rs3803662 pada gen **TOX3**, dan rs13387042. Variasi genetik tersebut diketahui berkontribusi terhadap peningkatan risiko kanker payudara pada berbagai populasi yang berbeda (Common Genetic Variation and Breast Cancer Risk -- Past, Present, and Future).
+
+Meskipun berbagai penelitian telah menunjukkan adanya hubungan antara SNP rs2981582, rs3803662, dan rs13387042 dengan risiko kanker payudara, karakteristik hubungan antar SNP, pola keterkaitan genetik (*linkage disequilibrium*), distribusi genotipe dalam populasi, serta kemungkinan pengaruh faktor etnis sebagai faktor perancu masih perlu dievaluasi lebih lanjut. Analisis terhadap aspek-aspek tersebut diperlukan untuk memperoleh pemahaman yang lebih komprehensif mengenai kontribusi variasi genetik terhadap kejadian kanker payudara.
+
+Berdasarkan uraian tersebut, penelitian ini dilakukan untuk menganalisis hubungan SNP rs2981582, rs3803662, dan rs13387042 dengan kejadian kanker payudara menggunakan pendekatan *Genome-Wide Association Study* (GWAS). Analisis dilakukan melalui pengukuran *linkage disequilibrium* (LD), pengujian *Hardy--Weinberg Equilibrium* (HWE), estimasi *Odds Ratio* (OR), stratifikasi berdasarkan etnis, serta evaluasi faktor perancu menggunakan metode Mantel--Haenszel.
+
+## Rumusan Masalah
+
+1.  Apakah terdapat Linkage Disequilibrium (LD) yang ditunjukkan oleh nilai D' dan r² antara SNP rs2981582, rs3803662, dan rs13387042?
+
+2.  Apakah terdapat hubungan antara variasi genetik pada SNP rs2981582, rs3803662, dan rs13387042 dengan kejadian kanker payudara berdasarkan nilai Odds Ratio (OR) dan Confidence Interval (CI)?
+
+3.  Apakah distribusi genotipe pada masing-masing SNP memenuhi asumsi Hardy--Weinberg Equilibrium (HWE)?
+
+4.  Bagaimana hubungan antara SNP dan kejadian kanker payudara setelah dilakukan stratifikasi berdasarkan etnis?
+
+5.  Apakah etnis berperan sebagai faktor perancu (confounding factor) dalam hubungan antara SNP dan kejadian kanker payudara berdasarkan metode Mantel--Haenszel?
+
+## Tujuan Analisis
+
+1.  Menganalisis nilai Linkage Disequilibrium (LD) berupa D' dan r² antar SNP rs2981582, rs3803662, dan rs13387042 pada region 17q21.
+
+2.  Mengidentifikasi hubungan SNP rs2981582 dengan kejadian kanker payudara melalui perhitungan Odds Ratio (OR) beserta 95% Confidence Interval (CI).
+
+3.  Mengevaluasi keseimbangan frekuensi genotipe setiap SNP menggunakan uji Hardy--Weinberg Equilibrium (HWE).
+
+4.  Menganalisis hubungan antara SNP dan kejadian kanker payudara berdasarkan kelompok etnis melalui analisis stratifikasi.
+
+5.  Menilai pengaruh etnis sebagai faktor perancu (confounding factor) menggunakan metode Mantel--Haenszel.
+
+6.  Menyajikan hasil estimasi risiko genetik dalam bentuk forest plot untuk mempermudah interpretasi hubungan antara SNP dan risiko kanker payudara.
+
+## Uji Hipotesis
+
+### Hipotesis Penelitian
+
+**H0:** Tidak terdapat hubungan antara variasi genetik pada SNP rs2981582, rs3803662, dan rs13387042 dengan kejadian kanker payudara.
+
+**H1:** Terdapat hubungan antara variasi genetik pada SNP rs2981582, rs3803662, dan rs13387042 dengan kejadian kanker payudara.
+
+# BAGIAN DATA & METODE
+
+## Data Set
+
+Dataset yang digunakan merupakan data kasus-kontrol (*case-control study*) terkait kejadian kanker payudara pada 300 wanita yang terdiri atas 150 penderita kanker payudara (kasus) dan 150 individu tanpa kanker payudara (kontrol). Analisis difokuskan pada SNP rs2981582 yang berada pada gen FGFR2 di region kromosom 17q21.
+
+```{r}
+tabel_studi <- matrix(
+  c(88,52,
+    62,98),
+  nrow = 2,
+  byrow = TRUE,
+  dimnames = list(
+    Genotipe = c("AA","AG/GG"),
+    Status = c("Kanker","Kontrol")
+  )
+)
+
+tabel_studi
+```
+
+## Metode Analisis
+
+Pada penelitian ini digunakan beberapa metode analisis statistik dan genetika populasi untuk mengevaluasi hubungan variasi genetik dengan kejadian kanker payudara. Analisis dilakukan berdasarkan data genotipe yang tersedia dan meliputi pengukuran Linkage Disequilibrium (LD), estimasi Odds Ratio (OR), pengujian Hardy--Weinberg Equilibrium (HWE), serta identifikasi faktor confounding menggunakan metode Mantel--Haenszel.
+
+### Linkage Disequilibrium
+
+Linkage Disequilibrium (LD) merupakan kondisi ketika kombinasi alel pada dua atau lebih lokus genetik muncul secara tidak acak dalam suatu populasi. LD menunjukkan adanya keterkaitan antar variasi genetik atau single nucleotide polymorphisms (SNP) yang diwariskan bersama dengan frekuensi lebih tinggi dibandingkan yang diharapkan apabila setiap lokus mengalami segregasi secara independen. Dalam studi Genome-Wide Association Study (GWAS), LD dimanfaatkan untuk mendeteksi hubungan antara penanda genetik dan suatu penyakit karena alel penyebab penyakit sering kali berada dalam keterkaitan dengan SNP yang berada di sekitarnya (Linkage Disequilibrium in Humans: Models and Data).
+
+#### a. Koefisien Disequilibrium (D)
+
+$$
+D=P_{AB}-P_AP_B
+$$
+
+**Keterangan**
+
+-   $P_{AB}$ = frekuensi haplotipe AB
+-   $P_A$ = frekuensi alel A
+-   $P_B$ = frekuensi alel B
+-   $D$ = selisih antara frekuensi haplotipe yang diamati dan frekuensi yang diharapkan apabila kedua lokus bebas berasosiasi
+
+#### b. D-prime (D')
+
+$$
+D'=\frac{D}{D_{MAX}}
+$$
+
+**Keterangan**
+
+-   $D$ = koefisien linkage disequilibrium
+-   $D_{MAX}$ = nilai maksimum absolut D yang mungkin terjadi berdasarkan frekuensi alel
+-   $D'$ = ukuran LD yang telah dinormalisasi
+
+#### c. Koefisien Korelasi (r²)
+
+$$
+r^2=\frac{D^2}{P_A(1-P_A)P_B(1-P_B)}
+$$
+
+**Keterangan**
+
+-   $D$ = koefisien linkage disequilibrium
+-   $P_A$ = frekuensi alel A
+-   $P_B$ = frekuensi alel B
+-   $r^2$ = koefisien determinasi antara dua lokus
+
+### OR (Odds Ratio)
+
+Odds Ratio (OR) merupakan ukuran statistik yang digunakan untuk menilai besarnya hubungan atau kecenderungan suatu faktor risiko terhadap suatu kejadian. Nilai OR diperoleh dari hasil eksponensial koefisien regresi logistik dan digunakan untuk membandingkan peluang terjadinya suatu kejadian pada kelompok yang memiliki faktor risiko dengan kelompok yang tidak memilikinya. Dengan demikian, OR dapat menggambarkan seberapa besar kemungkinan munculnya suatu kejadian pada satu kelompok dibandingkan kelompok lainnya (PENERAPAN REGRESI LOGISTIK BINER PADA ANALISIS PEMAHAMAN LITERASI KEUANGAN USIA PRODUKTIF DI PROVINSI BENGKULU).
+
+#### Rumus Odds Ratio
+
+$$
+\phi=
+\frac{
+\frac{\pi(1)}{1-\pi(1)}
+}{
+\frac{\pi(0)}{1-\pi(0)}
+}
+$$
+
+**Keterangan**
+
+-   $\phi$ = Odds Ratio (OR)
+-   $\pi(1)$ = probabilitas kejadian pada kelompok yang memiliki faktor risiko
+-   $\pi(0)$ = probabilitas kejadian pada kelompok yang tidak memiliki faktor risiko
+
+#### Rumus Epidemiologi
+
+$$
+OR=\frac{a\times d}{b\times c}
+$$
+
+**Keterangan**
+
+-   $a$ = jumlah kasus dengan genotipe paparan
+-   $b$ = jumlah kontrol dengan genotipe paparan
+-   $c$ = jumlah kasus tanpa genotipe paparan
+-   $d$ = jumlah kontrol tanpa genotipe paparan
+
+### Hardy-Weinberg Equilibrium (HWE)
+
+Hardy--Weinberg Equilibrium (HWE) merupakan konsep dasar dalam genetika populasi yang menyatakan bahwa frekuensi alel dan genotipe akan tetap konstan dari satu generasi ke generasi berikutnya apabila populasi berada dalam kondisi ideal, yaitu terjadi perkawinan acak (random mating), ukuran populasi besar, serta tidak terdapat migrasi, mutasi, maupun seleksi alam. Untuk lokus yang memiliki dua alel, yaitu A dan a dengan frekuensi masing-masing $(1-p)$ dan $p$, maka frekuensi genotipe yang diharapkan pada kondisi keseimbangan adalah $(1-p)^2$ untuk AA, $2p(1-p)$ untuk Aa, dan $p^2$ untuk aa (Gene-based Hardy--Weinberg Equilibrium Test Using Genotype Count Data: Application to Six Types of Cancers).
+
+#### Rumus HWE
+
+$$
+p^2+2pq+q^2=1
+$$
+
+**Keterangan**
+
+-   $p$ = frekuensi alel dominan (A)
+-   $q$ = frekuensi alel resesif (a)
+-   $p^2$ = frekuensi genotipe homozigot dominan (AA)
+-   $2pq$ = frekuensi genotipe heterozigot (Aa)
+-   $q^2$ = frekuensi genotipe homozigot resesif (aa)
+-   $p+q=1$
+
+### Uji Confounding (Mantel-Haenszel)
+
+Confounding merupakan kondisi ketika hubungan antara faktor paparan dan kejadian penyakit dipengaruhi oleh variabel lain sehingga dapat menyebabkan bias dalam interpretasi hasil penelitian. Keberadaan variabel confounding dapat memengaruhi nilai p-value maupun estimasi risiko, sehingga identifikasinya menjadi langkah penting dalam analisis epidemiologi.
+
+Metode Mantel--Haenszel digunakan untuk memperoleh estimasi risiko gabungan dari beberapa strata sekaligus mengevaluasi adanya pengaruh faktor perancu. Melalui metode ini dapat diperoleh nilai Odds Ratio Mantel--Haenszel ($OR_{MH}$), yang kemudian dibandingkan dengan Odds Ratio kasar (crude OR). Suatu variabel dapat dikategorikan sebagai confounding variable apabila perbedaan antara crude OR dan $OR_{MH}$ melebihi 10% (IDENTIFIKASI VARIABEL CONFOUNDING DENGAN PENERAPAN UJI CHI SQUARE MANTEL HAENSZEL PADA HUBUNGAN ANTENATAL CARE (ANC) TERHADAP BBLR DI KOTA SAMARINDA).
+
+Metode Mantel--Haenszel pertama kali diperkenalkan oleh Mantel dan Haenszel untuk analisis data berstrata, kemudian dikembangkan oleh Holland dan Thayer dalam berbagai penerapan statistik lainnya (SENSITIVITY OF MANTEL HAENSZEL MODEL AND RASCH MODEL AS VIEWED FROM SAMPLE SIZE).
+
+## Tools
+
+Pada analysis ini tools yang digunakan yakni adalah R-Studio, dimana R adalah bahasa pemrograman open source yang berhubungan dengan komputasi dan pengolahan data untuk Statistika dan yang berhubungan dengan penampilan grafik menggunakan tools yang disediakan oleh paket-paketnya yang sangat berguna di dalam penelitian dan industri. Beberapa package yang digunakan selama analysis adalah sebagai berikut.
+
+```{r eval=FALSE}
+library(genetics)
+library(mice)
+library(jomo)
+library(HardyWeinberg)
+library(epitools)
+library(forestplot)
+library(LDheatmap)
+library(snpStats)
+library(epiR)
+library(epitools)
+library(ggplot2)
+library(genetics)
+library(curl)
+```
+
+Package tersebut digunakan sebagai support tools dalam pemrograman R-Studio untuk menganalisis data yang tertera pada Subbab 2.1.
+
+# BAGIAN Hasil & Pembahasan
+
+## Analisis Linkage Disequilibrium (LD)
+
+Analisis Linkage Disequilibrium (LD) dilakukan untuk mengetahui tingkat keterkaitan antar SNP yang diteliti yaitu rs2981582, rs3803662, dan rs13387042. Analisis dilakukan menggunakan nilai D′ dan r².
+
+### Syntax R
+### Membangkitkan data simulasi
+
+```{r}
+# membangkitkan Data simulasi
+set.seed(3)
+n <- 300
+
+## etnis
+etnis <- sample(
+  c("A","B"),
+  n,
+  replace = TRUE,
+  prob = c(0.6,0.4)
+)
+
+## SNP 1
+rs2981582 <- sample(
+  c("A/A","A/G","G/G"),
+  n,
+  replace = TRUE,
+  prob = c(0.47,0.41,0.12)
+)
+
+## SNP 2
+rs3803662 <- sample(
+  c("C/C","C/T","T/T"),
+  n,
+  replace = TRUE,
+  prob = c(0.45,0.40,0.15)
+)
+
+## SNP 3
+rs13387042 <- sample(
+  c("G/G","G/A","A/A"),
+  n,
+  replace = TRUE,
+  prob = c(0.50,0.35,0.15)
+)
+
+## status kanker
+status <- rbinom(
+  n,
+  1,
+  plogis(
+    -1.5 +
+      1.1*(rs2981582=="A/A") +
+      0.5*(etnis=="B")
+  )
+)
+
+data_gwas <- data.frame(
+  etnis,
+  rs2981582,
+  rs3803662,
+  rs13387042,
+  status
+)
+
+head(data_gwas)
+```
+
+
+```{r}
+library(genetics)
+geno <- makeGenotypes(
+  data.frame(
+    rs2981582 = data_gwas$rs2981582,
+    rs3803662 = data_gwas$rs3803662,
+    rs13387042 = data_gwas$rs13387042
+  )
+)
+
+ld_result <- LD(geno)
+
+ld_result$`D'`
+ld_result$R^2
+```
+### Visualisasi LD Heatmap
+
+```{r fig.width=7, fig.height=6}
+library(LDheatmap)
+LDheatmap(
+  geno,
+  LDmeasure = "r",
+  title = "LD Heatmap BRCA Region"
+)
+```
+
+### Hasil dan Pembahasan
+
+Berdasarkan hasil analisis LD, seluruh pasangan SNP memiliki nilai D′ yang relatif rendah, yaitu berkisar antara 0,0302--0,1353. Nilai tertinggi ditemukan pada pasangan rs2981582 dan rs13387042 sebesar 0,1353. Selain itu, nilai r² yang diperoleh sangat mendekati nol. Nilai r² tertinggi hanya sebesar 0,000214, sedangkan pasangan SNP lainnya memiliki nilai yang lebih kecil lagi.
+
+Nilai D′ dan r² yang rendah menunjukkan bahwa ketiga SNP tidak memiliki keterkaitan genetik yang kuat dan diwariskan secara relatif independen dalam populasi simulasi ini. Dengan demikian, informasi genetik yang diberikan oleh masing-masing SNP tidak dapat saling menggantikan dalam analisis asosiasi genetik.
+
+## Analisis Odds Ratio (OR)
+
+### Syntax R
+
+```{r}
+library(epiR)
+library(epitools)
+tabel_studi <- matrix(
+  c(88,52,
+    62,98),
+  nrow = 2,
+  byrow = TRUE,
+  dimnames = list(
+    Genotipe = c("AA","AG/GG"),
+    Status = c("Kanker","Kontrol")
+  )
+)
+
+knitr::kable(
+  tabel_studi,
+  caption = "Tabel Kontingensi SNP rs2981582"
+)
+
+hasil<- epi.2by2(
+  dat = as.table(tabel_studi),
+  method = "case.control",
+  conf.level = 0.95
+)
+
+hasil
+```
+
+### Hasil dan Pembahasan
+
+Nilai Odds Ratio sebesar 2,675 menunjukkan bahwa individu yang memiliki genotipe AA pada SNP rs2981582 mempunyai peluang mengalami kanker payudara sekitar 2,675 kali lebih besar dibandingkan individu dengan genotipe AG/GG. Interval kepercayaan 95% berada pada rentang 1,676 hingga 4,270 dan tidak melewati nilai 1. Hal ini menunjukkan bahwa hubungan antara genotipe AA dan kejadian kanker payudara bersifat signifikan secara statistik. Hasil ini mengindikasikan bahwa SNP rs2981582 pada gen FGFR2 berpotensi menjadi faktor risiko genetik terhadap kanker payudara pada populasi yang dianalisis.
+
+## Uji Hardy--Weinberg Equilibrium (HWE)
+
+### Syntax R
+
+```{r}
+library(HardyWeinberg)
+kontrol <- subset(data_gwas, status == 0)
+
+geno1 <- c(
+  sum(kontrol$rs2981582=="A/A"),
+  sum(kontrol$rs2981582=="A/G"),
+  sum(kontrol$rs2981582=="G/G")
+)
+
+geno2 <- c(
+  sum(kontrol$rs3803662=="C/C"),
+  sum(kontrol$rs3803662=="C/T"),
+  sum(kontrol$rs3803662=="T/T")
+)
+
+geno3 <- c(
+  sum(kontrol$rs13387042=="G/G"),
+  sum(kontrol$rs13387042=="G/A"),
+  sum(kontrol$rs13387042=="A/A")
+)
+
+HWExact(geno1)
+HWExact(geno2)
+HWExact(geno3)
+```
+
+### Hasil dan Pembahasan
+
+Berdasarkan hasil uji HWE, seluruh SNP memiliki nilai p-value lebih besar dari 0,05. Karena seluruh p-value \> 0,05, maka tidak terdapat penyimpangan dari keseimbangan Hardy--Weinberg pada kelompok kontrol. Hasil ini menunjukkan bahwa distribusi genotipe dalam populasi kontrol masih sesuai dengan proporsi yang diharapkan secara teoritis. Dengan demikian, data genetik yang digunakan memiliki kualitas yang baik dan layak digunakan untuk analisis asosiasi lebih lanjut.
+
+## Analisis Stratifikasi Berdasarkan Etnis
+
+### Syntax R
+
+```{r}
+library(HardyWeinberg)
+library(mice)
+data_gwas$geno <- ifelse(
+  data_gwas$rs2981582 == "A/A",
+  "AA",
+  "AG/GG"
+)
+
+data_A <- subset(data_gwas, etnis == "A")
+data_B <- subset(data_gwas, etnis == "B")
+
+tab_A <- table(data_A$geno, data_A$status)
+tab_B <- table(data_B$geno, data_B$status)
+
+or_A <- oddsratio(tab_A)
+or_B <- oddsratio(tab_B)
+
+print(or_A)
+print(or_B)
+```
+
+### Hasil dan Pembahasan
+
+Pada kelompok etnis A diperoleh nilai OR sebesar 0,364, sedangkan pada etnis B sebesar 0,232. Nilai OR yang berada di bawah 1 menunjukkan bahwa kelompok referensi memiliki peluang lebih kecil mengalami kanker payudara dibandingkan kelompok pembanding. Interval kepercayaan pada kedua kelompok etnis tidak mencakup nilai 1, sehingga hubungan yang diamati bersifat signifikan secara statistik. Meskipun demikian, terdapat perbedaan besar efek antara etnis A dan etnis B yang mengindikasikan kemungkinan adanya pengaruh faktor etnis terhadap hubungan SNP rs2981582 dengan kanker payudara.
+
+## Uji Confounding Menggunakan Metode Mantel--Haenszel
+
+### Syntax R
+
+```{r}
+mh_table <- xtabs(
+  ~ geno + status + etnis,
+  data = data_gwas
+)
+
+mh_result <- mantelhaen.test(mh_table)
+
+mh_result
+```
+
+### Hasil dan Pembahasan
+
+Hasil uji Mantel--Haenszel menghasilkan Common Odds Ratio sebesar 0,298 dengan interval kepercayaan 95% sebesar 0,178--0,498. Nilai p-value yang sangat kecil (p \< 0,001) menunjukkan adanya hubungan yang signifikan antara SNP rs2981582 dan kejadian kanker payudara setelah dilakukan pengendalian berdasarkan etnis. Berdasarkan hasil ini dapat disimpulkan bahwa hubungan antara SNP rs2981582 dan kanker payudara tetap signifikan setelah mempertimbangkan faktor etnis. Oleh karena itu, etnis perlu diperhatikan dalam interpretasi hasil analisis genetik karena berpotensi memengaruhi estimasi risiko yang diperoleh.
+
+## Forest Plot Odds Ratio Antar SNP
+
+### Syntax R
+```{r}
+library(epitools)
+
+# Model dominan
+data_gwas$rs2981582_dom <- ifelse(
+  data_gwas$rs2981582=="A/A",
+  "AA",
+  "AG/GG"
+)
+
+data_gwas$rs3803662_dom <- ifelse(
+  data_gwas$rs3803662=="C/C",
+  "CC",
+  "CT/TT"
+)
+
+data_gwas$rs13387042_dom <- ifelse(
+  data_gwas$rs13387042=="G/G",
+  "GG",
+  "GA/AA"
+)
+
+# Hitung OR masing-masing SNP
+or1 <- oddsratio(
+  table(data_gwas$rs2981582_dom,
+        data_gwas$status)
+)
+
+or2 <- oddsratio(
+  table(data_gwas$rs3803662_dom,
+        data_gwas$status)
+)
+
+or3 <- oddsratio(
+  table(data_gwas$rs13387042_dom,
+        data_gwas$status)
+)
+```
+
+```{r}
+forest_data <- data.frame(
+  SNP = c(
+    "rs2981582",
+    "rs3803662",
+    "rs13387042"
+  ),
+  OR = c(
+    or1$measure[2,1],
+    or2$measure[2,1],
+    or3$measure[2,1]
+  ),
+  Lower = c(
+    or1$measure[2,2],
+    or2$measure[2,2],
+    or3$measure[2,2]
+  ),
+  Upper = c(
+    or1$measure[2,3],
+    or2$measure[2,3],
+    or3$measure[2,3]
+  )
+)
+
+str(forest_data)
+```
+
+```{r fig.width=7, fig.height=5}
+library(ggplot2)
+ggplot(
+  forest_data,
+  aes(
+    x = SNP,
+    y = OR,
+    ymin = Lower,
+    ymax = Upper
+  )
+) +
+  geom_pointrange() +
+  geom_hline(
+    yintercept = 1,
+    linetype = "dashed"
+  ) +
+  coord_flip() +
+  theme_minimal() +
+  labs(
+    title = "Forest Plot Odds Ratio per SNP",
+    x = "SNP",
+    y = "Odds Ratio (95% CI)"
+  )
+```
+
+### Hasil dan Pembahasan
+
+Berdasarkan visualisasi Forest Plot yang dihasilkan melalui perangkat lunak R Studio, diperoleh hasil analisis yang berbeda pada ketiga variasi genetik (Single Nucleotide Polymorphism atau SNP) yang diteliti. Dari ketiga SNP tersebut, hanya rs2981582 yang menunjukkan hubungan yang signifikan secara statistik. SNP ini memiliki nilai Odds Ratio (OR) sekitar 0,35 dengan interval kepercayaan 95% (95% CI) yang relatif sempit serta tidak melintasi nilai 1,0. Kondisi tersebut mengindikasikan bahwa rs2981582 memiliki efek protektif yang signifikan, sehingga keberadaannya berkaitan dengan penurunan risiko terjadinya kondisi yang menjadi fokus penelitian.
+
+Di sisi lain, SNP rs3803662 dan rs13387042 tidak menunjukkan hubungan yang signifikan secara statistik. Pada SNP rs3803662, nilai OR berada sedikit di atas 1,0 (sekitar 1,15) yang mengarah pada kecenderungan sebagai faktor risiko. Namun demikian, rentang 95% CI yang cukup lebar masih mencakup nilai 1,0, sehingga asosiasi yang ditemukan belum dapat dinyatakan signifikan. Sementara itu, SNP rs13387042 memiliki nilai OR yang mendekati 1,0 dengan interval kepercayaan yang juga melintasi nilai tersebut. Oleh karena itu, kedua SNP tersebut belum menunjukkan bukti yang cukup untuk menyatakan adanya pengaruh yang bermakna terhadap variabel yang dianalisis dalam penelitian ini.
+
+Secara keseluruhan, hasil Forest Plot menunjukkan bahwa hanya SNP rs2981582 yang memiliki asosiasi yang signifikan terhadap kejadian yang diteliti, sedangkan SNP rs3803662 dan rs13387042 tidak menunjukkan hubungan yang signifikan secara statistik.
+
+# BAGIAN KESIMPULAN
+
+Berdasarkan hasil analisis Genome-Wide Association Study (GWAS) terhadap SNP rs2981582, rs3803662, dan rs13387042 yang berhubungan dengan risiko kanker payudara, diperoleh bahwa ketiga SNP memiliki nilai Linkage Disequilibrium (LD) yang rendah, ditunjukkan oleh nilai D′ dan r² yang mendekati nol. Hasil tersebut mengindikasikan bahwa ketiga SNP diwariskan secara relatif independen dan tidak memiliki keterkaitan genetik yang kuat. Analisis Odds Ratio (OR) menunjukkan bahwa genotipe AA pada SNP rs2981582 memiliki peluang sekitar 2,675 kali lebih besar untuk mengalami kanker payudara dibandingkan genotipe AG/GG, dengan interval kepercayaan 95% sebesar 1,676--4,270 yang tidak mencakup nilai 1, sehingga hubungan tersebut signifikan secara statistik dan menunjukkan bahwa rs2981582 berpotensi menjadi faktor risiko genetik kanker payudara.
+
+Hasil uji Hardy--Weinberg Equilibrium (HWE) menunjukkan bahwa seluruh SNP memiliki nilai p-value lebih besar dari 0,05, sehingga distribusi genotipe pada kelompok kontrol berada dalam keseimbangan Hardy--Weinberg dan data genetik yang digunakan dinilai layak untuk analisis asosiasi lebih lanjut. Analisis stratifikasi berdasarkan etnis menghasilkan nilai OR sebesar 0,364 pada etnis A dan 0,232 pada etnis B, yang menunjukkan adanya perbedaan besar efek antar kelompok etnis. Selain itu, hasil uji Mantel--Haenszel menghasilkan Common Odds Ratio sebesar 0,298 dengan p-value \< 0,001, yang menunjukkan bahwa hubungan antara SNP rs2981582 dan kejadian kanker payudara tetap signifikan setelah dilakukan pengendalian terhadap faktor etnis. Berdasarkan visualisasi Forest Plot, hanya SNP rs2981582 yang menunjukkan asosiasi signifikan terhadap kejadian kanker payudara, sedangkan rs3803662 dan rs13387042 tidak menunjukkan hubungan yang signifikan karena interval kepercayaannya masih mencakup nilai 1. Secara keseluruhan, SNP rs2981582 merupakan variasi genetik yang paling berpotensi berasosiasi dengan risiko kanker payudara pada data yang dianalisis.
+
+# LINK REFERENSI
+
+1. https://d1wqtxts1xzle7.cloudfront.net/98026045/106620-libre.pdf
+
+2. https://journal.unj.ac.id/unj/index.php/jep/article/view/1451/1146
+
+3. https://d1wqtxts1xzle7.cloudfront.net/96504306/confounding-libre.pdf
+
+4. https://pmc.ncbi.nlm.nih.gov/articles/PMC1226024/pdf/AJHGv69p1.pdf
+
+5. https://publisherqu.com/index.php/pediaqu/article/view/4038
+
+6. https://d1wqtxts1xzle7.cloudfront.net/112031101/542-libre.pdf
+
+7. https://www.ojsjournal.unt.ac.id/index.php/ihsj/article/view/77
+
+8. https://aacrjournals.org/cebp/article-abstract/27/4/380/71642
+
+9. https://www.journal.ahmareduc.or.id/index.php/AMJPM/article/view/444
